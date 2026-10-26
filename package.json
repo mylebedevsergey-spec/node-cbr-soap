@@ -1,0 +1,14 @@
+{
+  "name": "cbr-soap-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Учебное задание Node.js: SOAP-клиенты и SOAP-прокси для курсов валют ЦБ РФ (без внешних зависимостей)",
+  "main": "proxy/server.js",
+  "scripts": {
+    "mock": "node mock-cbr/server.js",
+    "proxy": "node proxy/server.js",
+    "client:valutes": "node clients/valutes-client.js",
+    "client:valute": "node clients/valute-client.js",
+    "test:e2e": "node test/e2e.js"
+  }
+}
