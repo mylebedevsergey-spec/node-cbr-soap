@@ -19,15 +19,33 @@ function toCbrDate(value) {
   return `${day}/${month}/${date.getFullYear()}`;
 }
 
+/** Запрос в ЦБ: справочник валют, нужен для названий и кодов. */
+async function fetchValuteNames() {
+  const xml = envelope(CBR_NS, 'EnumValutesXML', { Seld: false });
+  const response = await call(CBR_URL, `${CBR_NS}EnumValutesXML`, xml);
+  const names = new Map();
+  for (const row of findAll(response, 'ValuteEnum')) {
+    const code = (findOne(row, 'VcharCode') || findOne(row, 'Vcode') || '').trim();
+    if (code) {
+      names.set(code, (findOne(row, 'Vname') || '').trim());
+    }
+  }
+  return names;
+}
+
 /** Запрос в ЦБ: список валют на дату. */
 async function fetchValutes() {
+  const names = await fetchValuteNames();
   const xml = envelope(CBR_NS, 'GetCursOnDateXML', { On_date: toCbrDate() });
   const response = await call(CBR_URL, `${CBR_NS}GetCursOnDateXML`, xml);
-  return findAll(response, 'ValuteCursOnDate').map((row) => ({
-    Code: (findOne(row, 'VchCode') || '').trim(),
-    Name: (findOne(row, 'Vname') || '').trim(),
-    Value: Number((toNumber(findOne(row, 'Vcurs')) / (toNumber(findOne(row, 'Vnom'), 1) || 1)).toFixed(4)),
-  }));
+  return findAll(response, 'ValuteCursOnDate').map((row) => {
+    const code = (findOne(row, 'VchCode') || '').trim();
+    return {
+      Code: code,
+      Name: names.get(code) || (findOne(row, 'Vname') || '').trim(),
+      Value: Number((toNumber(findOne(row, 'Vcurs')) / (toNumber(findOne(row, 'Vnom'), 1) || 1)).toFixed(4)),
+    };
+  });
 }
 
 /** Запрос в ЦБ: динамика курса валюты за период. */
