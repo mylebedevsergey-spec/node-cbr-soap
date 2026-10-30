@@ -9,6 +9,7 @@
     "proxy": "node proxy/server.js",
     "client:valutes": "node clients/valutes-client.js",
     "client:valute": "node clients/valute-client.js",
-    "test:e2e": "node test/e2e.js"
+    "test:e2e": "node test/e2e.js",
+    "test:parser": "node test/parser.js"
   }
 }
